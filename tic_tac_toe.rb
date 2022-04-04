@@ -17,7 +17,10 @@ end
 class Computer
 
   def initialize
-    puts "Oh, hello there.\n\nI came to entertain you.\n\nI am the computer.\n\nNice to meet you.\n\n"
+    puts "Oh, hello there.\n"
+    puts "\nI came to entertain you.\n"
+    puts "\nI am the computer.\n"
+    puts "\nNice to meet you.\n\n"
   end
 
   private
@@ -51,14 +54,8 @@ module Greetings
   
 end
 
-module GameSymbol
-  O = "O"
-  X = "X"
-end
-
 class Game
   include Greetings
-  include GameSymbol
   @@times_played = 0
 
   attr_accessor :player_one_name
@@ -68,7 +65,7 @@ class Game
   def initialize
     initial_response
     @game_won = false
-    @game_board_array = Array.new(9, ' ')
+    @game_board_array = [Array.new(9, ' '), Array.new(9, false)]
   end
 
   def start_game game_mode
@@ -105,14 +102,25 @@ class Game
   private
   def player_choice number, player
     if number.to_i >= 0 && number.to_i < 9
-      @game_board_array[number.to_i] = 'X' if player == @player_one_name
-      @game_board_array[number.to_i] = 'O' if player == @player_two_name || player == 'Computer'
+      if player == @player_one_name && @game_board_array[1][number.to_i] == true && @game_board_array[0][number.to_i] == 'X'
+        player_one_play
+      end
+      if player == @player_one_name && @game_board_array[1][number.to_i] == true && @game_board_array[0][number.to_i] == 'O'
+        player_two_play
+      end
+      if player == @player_one_name && @game_board_array[1][number.to_i] == false
+        @game_board_array[0][number.to_i] = 'X' 
+        @game_board_array[1][number.to_i] = true 
+      elsif (player == @player_two_name || player == 'Computer') && @game_board_array[1][number.to_i] == false
+        @game_board_array[0][number.to_i] = 'O' 
+        @game_board_array[1][number.to_i] = true
+      end
     end
   end
 
   private
   def check_win symbol, number_one, number_two, number_three, player
-    if @game_board_array[number_one] == symbol && @game_board_array[number_two] == symbol && @game_board_array[number_three] == symbol
+    if @game_board_array[0][number_one] == symbol && @game_board_array[0][number_two] == symbol && @game_board_array[0][number_three] == symbol
       system("clear")
       puts "\n\n#{player} wins! Congratulations.\n\n"
       @game_won = true
@@ -167,7 +175,6 @@ class Game
   def round round_one
       player_one_play
       player_two_play
-    #round_one.game_board round_one.player_one_name, round_one.game_board_array
   end
 
   public
@@ -191,11 +198,11 @@ class Game
   public
   def game_board player = @player_one, game_board_array = @game_board_array
     system("clear")
-    puts "| #{@game_board_array[0]} | #{@game_board_array[1]} | #{@game_board_array[2]} |\n"
+    puts "| #{@game_board_array[0][0]} | #{@game_board_array[0][1]} | #{@game_board_array[0][2]} |\n"
     puts "-------------\n"
-    puts "| #{@game_board_array[3]} | #{@game_board_array[4]} | #{@game_board_array[5]} |\n"
+    puts "| #{@game_board_array[0][3]} | #{@game_board_array[0][4]} | #{@game_board_array[0][5]} |\n"
     puts "-------------\n"
-    puts "| #{@game_board_array[6]} | #{@game_board_array[7]} | #{@game_board_array[8]} |\n\n"
+    puts "| #{@game_board_array[0][6]} | #{@game_board_array[0][7]} | #{@game_board_array[0][8]} |\n\n"
     puts "Please enter a valid number from zero to eight to mark the spot #{player}"
   end
 
