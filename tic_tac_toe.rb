@@ -4,11 +4,10 @@ class Player
   attr_accessor :player_two
 
   def initialize
-    if @player_one_presence == false
       puts "\nWhat is your name, player one?\n"
       @player_one = gets.chomp
       @player_one_presence = true
-    else
+    if @player_one_presence == true
       puts "\nWhat is your name, player two?\n"
       @player_two = gets.chomp
     end
@@ -68,6 +67,7 @@ class Game
 
   def initialize
     initial_response
+    @game_won = false
     @game_board_array = Array.new(9, ' ')
   end
 
@@ -97,10 +97,9 @@ class Game
 
   private 
   def multi_player
-    @player_one = Player.new
-    @player_one_name = @player_one.player_one
-    @player_two = Player.new
-    @player_two_name = @player_two.player_two
+    player = Player.new
+    @player_one_name = player.player_one
+    @player_two_name = player.player_two
   end
 
   private
@@ -112,8 +111,75 @@ class Game
   end
 
   private
-  def check_win symbol
-     
+  def check_win symbol, number_one, number_two, number_three, player
+    if @game_board_array[number_one] == symbol && @game_board_array[number_two] == symbol && @game_board_array[number_three] == symbol
+      system("clear")
+      puts "\n\n#{player} wins! Congratulations.\n\n"
+      @game_won = true
+    end
+  end
+
+  private 
+  def win_condition_X
+    check_win 'X', 0, 1, 2, @player_one_name
+    check_win 'X', 3, 4, 5, @player_one_name
+    check_win 'X', 6, 7, 8, @player_one_name
+    check_win 'X', 0, 3, 6, @player_one_name
+    check_win 'X', 1, 4, 7, @player_one_name
+    check_win 'X', 2, 5, 8, @player_one_name
+    check_win 'X', 0, 4, 8, @player_one_name
+    check_win 'X', 2, 4, 6, @player_one_name
+  end
+
+  private 
+  def win_condition_O
+    check_win 'O', 0, 1, 2, @player_two_name
+    check_win 'O', 3, 4, 5, @player_two_name
+    check_win 'O', 6, 7, 8, @player_two_name
+    check_win 'O', 0, 3, 6, @player_two_name
+    check_win 'O', 1, 4, 7, @player_two_name
+    check_win 'O', 2, 5, 8, @player_two_name
+    check_win 'O', 0, 4, 8, @player_two_name
+    check_win 'O', 2, 4, 6, @player_two_name
+  end
+
+  public 
+  def player_one_play
+    if @game_won == false
+      game_board @player_one_name, @game_board_array
+      @x_marks_the_spot = gets.chomp
+      chosen_number @x_marks_the_spot, @player_one_name
+      win_condition_X
+    end
+  end
+
+  public
+  def player_two_play
+    if @game_won == false
+      game_board @player_two_name, @game_board_array
+      @o_marks_the_spot = gets.chomp
+      chosen_number @o_marks_the_spot, @player_two_name
+      win_condition_O
+    end
+  end
+
+  public
+  def round round_one
+      player_one_play
+      player_two_play
+    #round_one.game_board round_one.player_one_name, round_one.game_board_array
+  end
+
+  public
+  def round_plays round_one
+    i = 0
+    loop do
+      round_one.round round_one
+      i += 1
+      if @game_won == true || i == 9 
+        break
+      end
+    end
   end
 
   public
@@ -146,10 +212,6 @@ end
 round_one = Game.new 
 game_mode = gets.chomp
 round_one.start_game game_mode
-round_one.game_board round_one.player_one_name, round_one.game_board_array
-x_marks_the_spot = gets.chomp
-round_one.chosen_number x_marks_the_spot, round_one.player_one_name
-round_one.game_board round_one.player_two_name, round_one.game_board_array
-o_marks_the_spot = gets.chomp
-round_one.chosen_number o_marks_the_spot, round_one.player_two_name
-round_one.game_board round_one.player_one_name, round_one.game_board_array
+round_one.round_plays round_one
+
+
