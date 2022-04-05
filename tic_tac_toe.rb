@@ -3,11 +3,11 @@ class Player
   attr_accessor :player_one
   attr_accessor :player_two
 
-  def initialize
+  def initialize game_mode = 's'
       puts "\nWhat is your name, player one?\n"
       @player_one = gets.chomp
       @player_one_presence = true
-    if @player_one_presence == true
+    if @player_one_presence == true && (game_mode == 'm' || game_mode == 'M')
       puts "\nWhat is your name, player two?\n"
       @player_two = gets.chomp
     end
@@ -25,12 +25,12 @@ class Computer
 
   private
   def computer_choice
-    @random = rand 9
+    @random = (rand 9) - 1
   end
 
   public
   def number_display
-    puts computer_choice
+    computer_choice
   end
 end
 
@@ -93,13 +93,13 @@ class Game
   private
   def single_player
     @computer = Computer.new
-    @player_one = Player.new 
+    @player_one = Player.new @game_mode
     @player_one_name = @player_one.player_one
   end
 
   private 
   def multi_player
-    player = Player.new
+    player = Player.new @game_mode
     @player_one_name = player.player_one
     @player_two_name = player.player_two
   end
@@ -110,8 +110,11 @@ class Game
       if player == @player_one_name && @game_board_array[1][number.to_i] == true && @game_board_array[0][number.to_i] == 'X'
         player_one_play
       end
-      if player == @player_one_name && @game_board_array[1][number.to_i] == true && @game_board_array[0][number.to_i] == 'O'
-        player_two_play
+      if (player == @player_two_name || player == 'Computer') && @game_board_array[1][number.to_i] == true && @game_board_array[0][number.to_i] == 'O'
+        player_two_play if player != 'Computer'
+        if player == 'Computer'
+          number = @computer.number_display
+        end 
       end
       if player == @player_one_name && @game_board_array[1][number.to_i] == false
         @game_board_array[0][number.to_i] = 'X' 
@@ -165,11 +168,16 @@ class Game
 
   public
   def player_two_play
-    if @game_won == false
+    if @game_won == false && @game_mode == 'm'
       game_board @player_two_name, @game_board_array
       @o_marks_the_spot = gets.chomp
       chosen_number @o_marks_the_spot, @player_two_name
       win_condition 'O', @player_two_name
+    elsif @game_won == false && @game_mode == 's'
+      game_board 'Computer', @game_board_array
+      @o_marks_the_spot = @computer.number_display
+      chosen_number @o_marks_the_spot, 'Computer'
+      win_condition 'O', 'Computer'
     end
   end
 
