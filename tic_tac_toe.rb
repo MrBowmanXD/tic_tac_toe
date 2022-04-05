@@ -25,7 +25,7 @@ class Computer
 
   private
   def computer_choice
-    random = rand 9
+    @random = rand 9
   end
 
   public
@@ -54,8 +54,13 @@ module Greetings
   
 end
 
+module WinCondition
+  CONDITION_ARRAY = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+end
+
 class Game
   include Greetings
+  include WinCondition
   @@times_played = 0
 
   attr_accessor :player_one_name
@@ -119,37 +124,34 @@ class Game
   end
 
   private
-  def check_win symbol, number_one, number_two, number_three, player
-    if @game_board_array[0][number_one] == symbol && @game_board_array[0][number_two] == symbol && @game_board_array[0][number_three] == symbol
-      system("clear")
-      puts "\n\n#{player} wins! Congratulations.\n\n"
-      @game_won = true
+  def check_win symbol, condition_array, player
+    i = 0
+    loop do
+      if @game_board_array[0][condition_array[i][0]] == symbol && @game_board_array[0][condition_array[i][1]] == symbol && @game_board_array[0][condition_array[i][2]] == symbol
+        system("clear")
+        puts "\n\n#{player} wins! Congratulations.\n\n"
+        @game_won = true
+      end
+      i += 1
+      if i == 7
+        break
+      end
     end
   end
 
-  private 
-  def win_condition_X
-    check_win 'X', 0, 1, 2, @player_one_name
-    check_win 'X', 3, 4, 5, @player_one_name
-    check_win 'X', 6, 7, 8, @player_one_name
-    check_win 'X', 0, 3, 6, @player_one_name
-    check_win 'X', 1, 4, 7, @player_one_name
-    check_win 'X', 2, 5, 8, @player_one_name
-    check_win 'X', 0, 4, 8, @player_one_name
-    check_win 'X', 2, 4, 6, @player_one_name
+  private
+  def win_condition symbol, player
+    i = 0
+    loop do
+      check_win symbol, CONDITION_ARRAY, player
+      i += 1
+      if i == 7
+        break
+      end
+    end
   end
 
-  private 
-  def win_condition_O
-    check_win 'O', 0, 1, 2, @player_two_name
-    check_win 'O', 3, 4, 5, @player_two_name
-    check_win 'O', 6, 7, 8, @player_two_name
-    check_win 'O', 0, 3, 6, @player_two_name
-    check_win 'O', 1, 4, 7, @player_two_name
-    check_win 'O', 2, 5, 8, @player_two_name
-    check_win 'O', 0, 4, 8, @player_two_name
-    check_win 'O', 2, 4, 6, @player_two_name
-  end
+  
 
   public 
   def player_one_play
@@ -157,7 +159,7 @@ class Game
       game_board @player_one_name, @game_board_array
       @x_marks_the_spot = gets.chomp
       chosen_number @x_marks_the_spot, @player_one_name
-      win_condition_X
+      win_condition 'X', @player_one_name
     end
   end
 
@@ -167,7 +169,7 @@ class Game
       game_board @player_two_name, @game_board_array
       @o_marks_the_spot = gets.chomp
       chosen_number @o_marks_the_spot, @player_two_name
-      win_condition_O
+      win_condition 'O', @player_two_name
     end
   end
 
